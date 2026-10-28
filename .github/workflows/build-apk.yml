@@ -1,0 +1,29 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Build debug APK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+      - name: Publicar no Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2-${{ github.run_number }}
+          name: SrMatta Treino v2 (build ${{ github.run_number }})
+          files: app/build/outputs/apk/debug/*.apk
